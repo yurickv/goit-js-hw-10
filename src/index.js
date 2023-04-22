@@ -19,7 +19,12 @@ function onSearch(event) {
 
     getCountries(name)
         .then((data) => {createMark(data), console.log(data);  })
-        .catch((err) => { Notify.failure('Oops, there is no country with that name');  clearMark()});
+        .catch((err) => {
+            if (err.message === "404") { Notify.failure('Oops, there is no country with that name') }
+            else {console.dir(err)}
+            
+            clearMark()
+        });
 }
 
 
@@ -56,7 +61,7 @@ function createMarkInfo(country) {
     <ul>
       <li class="country-list-elem"> <h3>Capital:</h3> ${element.capital}</li>
       <li class="country-list-elem"> <h3>Population:</h3> ${element.population.toLocaleString()}</li>
-      <li class="country-list-elem"> <h3>Languages:</h3> ${Object.values(element.languages )}</li>
+      <li class="country-list-elem"> <h3>Languages:</h3> ${Object.values(element.languages).join(',  ')}</li>
     </ul>`).join("")
 }
 
@@ -75,7 +80,7 @@ function getCountries (name) {
     return fetch(`${BASE_URL}/name/${name}?fields=name,capital,population,flags,languages`)
         .then((resp) => {
             if (!resp.ok) {
-                throw new Error(resp.statusText);
+                throw new Error(resp.status);
             }
             return resp.json();
         }
